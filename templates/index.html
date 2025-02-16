@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network monitoring</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #00ffcc;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #444;
+        }
+        th {
+            background-color: #00cc99;
+        }
+        .container {
+            margin: auto;
+            width: 90%;
+        }
+        button {
+            background-color: #00cc99;
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #00ffcc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Network monitoring - connected devices</h1>
+    <button onclick="fetchDevices()">تحديث الأجهزة</button>
+    <div class="container">
+        <table id="devicesTable">
+            <tr>
+                <th>IP</th>
+                <th>MAC</th>
+                <th>المنافذ المفتوحة</th>
+                <th>نظام التشغيل</th>
+            </tr>
+        </table>
+    </div>
+
+    <h1>Request registry</h1>
+    <button onclick="fetchRequests()">Register update</button>
+    <div class="container">
+        <table id="requestsTable">
+            <tr>
+                <th>Source</th>
+                <th>Source Port</th>
+                <th>Destination</th>
+                <th>Port destination</th>
+                <th>Protocol</th>
+                <th>DATA</th>
+            </tr>
+        </table>
+    </div>
+
+    <h1>Devices containing suspicious ports</h1>
+    <div class="container">
+        <table id="commonPortsTable">
+            <tr>
+                <th>IP</th>
+                <th>Suspicious</th>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        function fetchDevices() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('devicesTable');
+                    table.innerHTML = `
+                        <tr>
+                            <th>IP</th>
+                            <th>MAC</th>
+                            <th>Open ports</th>
+                            <th>OS</th>
+                        </tr>`;
+                    for (const [ip, info] of Object.entries(data)) {
+                        const row = `<tr>
+                            <td>${ip}</td>
+                            <td>${info.MAC}</td>
+                            <td>${info.Ports.join(', ') || 'nothing'}</td>
+                            <td>${info.OS}</td>
+                        </tr>`;
+                        table.innerHTML += row;
+                    }
+                });
+        }
+
+        function fetchRequests() {
+            fetch('/requests')
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('requestsTable');
+                    table.innerHTML = `
+                        <tr>
+                            <th>Source</th>
+                            <th>Source Port</th>
+                            <th>Destination</th>
+                            <th>Port destination</th>
+                            <th>Protocol</th>
+                            <th>DATA</th>
+                        </tr>`;
+                    data.forEach(request => {
+                        const row = `<tr>
+                            <td>${request.source}</td>
+                            <td>${request.source_port}</td>
+                            <td>${request.destination}</td>
+                            <td>${request.destination_port}</td>
+                            <td>${request.protocol}</td>
+                            <td>${request.data}</td>
+                        </tr>`;
+                        table.innerHTML += row;
+                    });
+                });
+        }
+
+        function fetchCommonPorts() {
+            fetch('/common_ports')
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('commonPortsTable');
+                    table.innerHTML = `
+                        <tr>
+                            <th>IP</th>
+                            <th>Suspicious</th>
+                        </tr>`;
+                    data.forEach(device => {
+                        const row = `<tr>
+                            <td>${device.ip}</td>
+                            <td>${device.common_ports.map(port => `${port[0]} - ${port[1]}`).join(', ')}</td>
+                        </tr>`;
+                        table.innerHTML += row;
+                    });
+                });
+        }
+
+        // تحديث بيانات البورتات المشبوهة عند تحميل الصفحة
+        window.onload = fetchCommonPorts;
+    </script>
+</body>
+</html>
