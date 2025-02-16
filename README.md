@@ -49,7 +49,7 @@ pip install nmap scapy flask
 2. Run the server using:
 
 ```bash
-python scan.py
+sudo python scan.py
 ```
 
 3. Open your browser and go to http://localhost:5000 to view the interface.
@@ -106,7 +106,7 @@ pip install nmap scapy flask
 2. قم بتشغيل الخادم باستخدام:
 
 ```bash
-python scan.py
+sudo python scan.py
 ```
 
 3. افتح المتصفح وانتقل إلى http://localhost:5000 لرؤية الواجهة.
