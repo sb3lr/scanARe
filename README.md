@@ -86,7 +86,7 @@ pip install -r requirements.txt
 4. **تشغيل البرنامج:**
 
 ```bash
-python main.py
+sudo python main.py
 ```
 
 5. **فتح المتصفح وزيارة الصفحة:**
