@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Network Sentinel Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #121212; color: #eee; padding: 20px; }
+    h1 { color: #4FC3F7; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { border: 1px solid #555; padding: 8px; text-align: left; }
+    th { background-color: #263238; }
+    tr:nth-child(even) { background-color: #1e1e1e; }
+    button { padding: 10px 15px; background: #4CAF50; border: none; color: white; cursor: pointer; }
+    button:hover { background: #45a049; }
+  </style>
+</head>
+<body>
+  <h1>📡 Network Sentinel Dashboard</h1>
+
+  <button onclick="loadData()">🔄 تحديث البيانات</button>
+  <button onclick="saveData()">💾 حفظ Snapshot</button>
+  <button onclick="exportPcap()">📤 تصدير PCAP</button>
+
+  <h2>🖥️ الأجهزة النشطة</h2>
+  <table id="device-table">
+    <thead>
+      <tr><th>IP</th><th>MAC</th><th>الاسم</th><th>الخدمات</th><th>آخر ظهور</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>📦 الحزم الملتقطة</h2>
+  <table id="packet-table">
+    <thead>
+      <tr><th>الزمن</th><th>المصدر</th><th>الوجهة</th><th>بروتوكول</th><th>المنفذ</th><th>الحجم</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function loadData() {
+      const devRes = await fetch('/api/devices');
+      const devices = await devRes.json();
+
+      const devTable = document.querySelector('#device-table tbody');
+      devTable.innerHTML = '';
+      devices.forEach(d => {
+        devTable.innerHTML += `
+          <tr>
+            <td>${d.ip}</td>
+            <td>${d.mac}</td>
+            <td>${d.hostname}</td>
+            <td>${d.services.join(', ')}</td>
+            <td>${d.last_seen}</td>
+          </tr>`;
+      });
+
+      const pktRes = await fetch('/api/packets');
+      const packets = await pktRes.json();
+
+      const pktTable = document.querySelector('#packet-table tbody');
+      pktTable.innerHTML = '';
+      packets.forEach(p => {
+        pktTable.innerHTML += `
+          <tr>
+            <td>${p.timestamp}</td>
+            <td>${p.src}</td>
+            <td>${p.dst}</td>
+            <td>${p.proto}</td>
+            <td>${p.dport || ''}</td>
+            <td>${p.size}</td>
+          </tr>`;
+      });
+    }
+
+    async function saveData() {
+      await fetch('/api/save', { method: 'POST' });
+      alert('تم حفظ Snapshot بنجاح!');
+    }
+
+    async function exportPcap() {
+      window.open('/api/export-pcap', '_blank');
+    }
+
+    loadData();
+    setInterval(loadData, 5000);
+  </script>
+</body>
+</html>
