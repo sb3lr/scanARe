@@ -86,6 +86,8 @@ pip install -r requirements.txt
 4. **تشغيل البرنامج:**
 
 ```bash
+sudo ./venv/bin/python main.py
+or
 sudo python main.py
 ```
 
