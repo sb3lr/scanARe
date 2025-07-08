@@ -23,7 +23,7 @@
 
 ---
 **نصيحة مهمة :**
-**استخدم معاها اداة https://github.com/sb3ly/scanWAS للعثور على جميع ip الموجودة على الشبكة**
+**استخدم معاها اداة https://github.com/sb3lr/scanWAS للعثور على جميع ip الموجودة على الشبكة**
 
 
 ## مشكلة التثبيت في البيئات المدارة (Externally Managed Environment)
